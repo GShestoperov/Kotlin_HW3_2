@@ -3,6 +3,8 @@ package service
 import data.CommentNotFoundException
 import data.Note
 import data.NoteComment
+import data.NoteCommentIsDeletedException
+import data.NoteCommentNotFoundException
 import data.NoteNotFoundException
 import org.junit.Before
 import org.junit.Test
@@ -126,7 +128,7 @@ class NoteServiceTest {
         assertEquals(resultComments[0].cid, 2)
     }
 
-    @Test(expected = CommentNotFoundException::class)
+    @Test(expected = NoteCommentNotFoundException::class)
     fun deleteComment_NotFound() {
         NoteService.add("Hello", "Hello Everybody")
         NoteService.createComment(1, "My comment!")
@@ -151,7 +153,7 @@ class NoteServiceTest {
         assertEquals(resultComments[1].cid, 2)
     }
 
-    @Test(expected = CommentNotFoundException::class)
+    @Test(expected = NoteCommentNotFoundException::class)
     fun restoreComment_NotFound() {
         NoteService.add("Hello", "Hello Everybody")
         NoteService.createComment(1, "My comment!")
@@ -203,6 +205,17 @@ class NoteServiceTest {
         NoteService.createComment(1, "My comment!")
 
         NoteService.editComment(100, "NEW comment")
+    }
+
+    @Test(expected = NoteCommentIsDeletedException::class)
+    fun editComment_isDeleted() {
+        NoteService.add("Hello", "Hello Everybody")
+        NoteService.createComment(1, "My comment!")
+        NoteService.createComment(1, "My comment!")
+
+        NoteService.deleteComment(1)
+
+        NoteService.editComment(1, "NEW comment")
     }
 
 }

@@ -3,6 +3,8 @@ package service
 import data.CommentNotFoundException
 import data.Note
 import data.NoteComment
+import data.NoteCommentIsDeletedException
+import data.NoteCommentNotFoundException
 import data.NoteNotFoundException
 import java.time.LocalDateTime.now
 
@@ -24,22 +26,23 @@ object NoteService {
     fun add(title: String,
             text: String,
             privacy: Int = 0,
-            commentPrivacy: Int = 0,
-            privacyView: String = "",
-            privacyComment: String = "" ): Long {
+            //commentPrivacy: Int = 0,
+            //privacyView: String = "",
+            //privacyComment: String = ""
+            ): Long {
 
         notes.add(Note(
             nid = nextNid,
             title = title,
             text = text,
             dateTime = now(),
-            comments = 0,
+            //comments = 0,
             viewUrl = "",
-            privacy = privacy,
-            canComment = true,
-            commentPrivacy = commentPrivacy,
-            privacyView = privacyView,
-            privacyComment = privacyComment
+            privacy = privacy//,
+            //canComment = true,
+            //commentPrivacy = commentPrivacy,
+            //privacyView = privacyView,
+            //privacyComment = privacyComment
         ))
 
         nextNid++
@@ -62,7 +65,7 @@ object NoteService {
         }
 
         return notes[foundIndex].copy()
-    }
+       }
 
     fun get(nids: List<Long> = listOf()): MutableList<Note> {
         val resultNotes = mutableListOf<Note>()
@@ -141,8 +144,6 @@ object NoteService {
             throw NoteNotFoundException("Note with id = $nid not found")
         }
 
-        notes.removeAt(foundIndex)
-
         // удаляем комментарии удаляемой заметки
         val it = noteComments.listIterator()
         while (it.hasNext()) {
@@ -151,6 +152,8 @@ object NoteService {
                 it.remove()
             }
         }
+
+        notes.removeAt(foundIndex)
 
         return 1
     }
@@ -166,7 +169,7 @@ object NoteService {
         }
 
         if (foundIndex == -1) {
-            throw CommentNotFoundException("Note comment with id = $cid not found")
+            throw NoteCommentNotFoundException("Note comment with id = $cid not found")
         }
 
         noteComments[foundIndex].isDeleted = true
@@ -185,7 +188,7 @@ object NoteService {
         }
 
         if (foundIndex == -1) {
-            throw CommentNotFoundException("Note comment with id = $cid not found")
+            throw NoteCommentNotFoundException("Note comment with id = $cid not found")
         }
 
         noteComments[foundIndex].isDeleted = false
@@ -197,10 +200,11 @@ object NoteService {
             nid: Long,
             title: String,
             text: String,
-            privacy: Int = 0,
-            commentPrivacy: Int = 0,
-            privacyView: String = "",
-            privacyComment: String = "" ): Long {
+            privacy: Int = 0//,
+            //commentPrivacy: Int = 0,
+            //privacyView: String = "",
+            //privacyComment: String = ""
+        ): Long {
 
         var foundIndex = -1
 
@@ -220,13 +224,13 @@ object NoteService {
             title = title,
             text = text,
             dateTime = notes[foundIndex].dateTime,
-            comments = notes[foundIndex].comments,
+            //comments = notes[foundIndex].comments,
             viewUrl = notes[foundIndex].viewUrl,
-            privacy = privacy,
-            canComment = notes[foundIndex].canComment,
-            commentPrivacy = commentPrivacy,
-            privacyView = privacyView,
-            privacyComment = privacyComment
+            privacy = privacy//,
+            //canComment = notes[foundIndex].canComment,
+            //commentPrivacy = commentPrivacy,
+            //privacyView = privacyView,
+            //privacyComment = privacyComment
         )
 
         return 1
@@ -236,7 +240,7 @@ object NoteService {
         var foundIndex = -1
 
         for ((index, value) in noteComments.withIndex()) {
-            if (value.cid == cid && !value.isDeleted) {
+            if (value.cid == cid) {
                 foundIndex = index
                 break
             }
@@ -244,6 +248,10 @@ object NoteService {
 
         if (foundIndex == -1) {
             throw CommentNotFoundException("Note comment with id = $cid not found")
+        }
+
+        if (noteComments[foundIndex].isDeleted) {
+            throw NoteCommentIsDeletedException("Note comment with id = $cid is deleted")
         }
 
         noteComments[foundIndex] = noteComments[foundIndex].copy(message = message)

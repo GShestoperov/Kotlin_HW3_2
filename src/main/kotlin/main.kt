@@ -43,7 +43,7 @@ fun main() {
     println("COMMENTS4 --------------------------------------------")
     println(noteComments4)
 
-    NoteService.edit(2, "New 2", "Hello NEW 2")
+    /*NoteService.edit(2, "New 2", "Hello NEW 2")
     val notes3 = NoteService.get()
 
     println("NOTES3 --------------------------------------------")
@@ -54,5 +54,7 @@ fun main() {
 
     println("COMMENTS5 --------------------------------------------")
     println(noteComments5)
+
+     */
 
 }
